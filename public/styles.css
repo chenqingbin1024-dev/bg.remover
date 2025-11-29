@@ -555,6 +555,14 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.preview-actions button {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .faq {
