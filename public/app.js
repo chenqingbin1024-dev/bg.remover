@@ -124,15 +124,25 @@ if (previewSection && !previewSection.hidden) {
 let isDraggingCompare = false;
 
 function updateCompareSplit(clientX) {
-  if (!heroCompareInner) return;
+  if (!heroCompareInner) {
+    console.warn('heroCompareInner 未找到');
+    return;
+  }
   const rect = heroCompareInner.getBoundingClientRect();
   let x = clientX - rect.left;
   x = Math.max(0, Math.min(x, rect.width));
   const percent = (x / rect.width) * 100;
   heroCompareInner.style.setProperty('--split', `${percent}%`);
+  // 确保滑块按钮也跟随移动
+  if (heroHandle) {
+    heroHandle.style.left = `${percent}%`;
+  }
 }
 
+// 初始化拖动交互
 if (heroCompareInner && heroHandle) {
+  console.log('初始化拖动对比交互', { heroCompareInner, heroHandle });
+  
   const startDrag = event => {
     event.preventDefault();
     event.stopPropagation();
@@ -176,6 +186,8 @@ if (heroCompareInner && heroHandle) {
   document.addEventListener('mouseup', endDrag);
   document.addEventListener('touchmove', moveDrag, { passive: false });
   document.addEventListener('touchend', endDrag);
+} else {
+  console.warn('拖动对比组件未找到', { heroCompareInner, heroHandle });
 }
 
 function handleFile(file) {
