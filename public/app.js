@@ -135,6 +135,7 @@ function updateCompareSplit(clientX) {
 if (heroCompareInner && heroHandle) {
   const startDrag = event => {
     event.preventDefault();
+    event.stopPropagation();
     isDraggingCompare = true;
     const clientX = event.touches ? event.touches[0].clientX : event.clientX;
     updateCompareSplit(clientX);
@@ -149,27 +150,30 @@ if (heroCompareInner && heroHandle) {
 
   const endDrag = event => {
     if (isDraggingCompare) {
-      event?.preventDefault();
       isDraggingCompare = false;
     }
   };
 
+  // 在滑块按钮上开始拖动
   heroHandle.addEventListener('mousedown', startDrag);
-  heroCompare.addEventListener('mousedown', (event) => {
-    // 如果点击的不是按钮，才开始拖动
+  heroHandle.addEventListener('touchstart', startDrag, { passive: false });
+  
+  // 在对比区域内点击时，直接移动到该位置并开始拖动
+  heroCompareInner.addEventListener('mousedown', (event) => {
+    // 如果点击的不是按钮本身，才开始拖动
     if (event.target !== heroHandle && !heroHandle.contains(event.target)) {
       startDrag(event);
     }
   });
-  document.addEventListener('mousemove', moveDrag);
-  document.addEventListener('mouseup', endDrag);
-
-  heroHandle.addEventListener('touchstart', startDrag, { passive: false });
-  heroCompare.addEventListener('touchstart', (event) => {
+  heroCompareInner.addEventListener('touchstart', (event) => {
     if (event.target !== heroHandle && !heroHandle.contains(event.target)) {
       startDrag(event);
     }
   }, { passive: false });
+  
+  // 全局监听移动和结束事件
+  document.addEventListener('mousemove', moveDrag);
+  document.addEventListener('mouseup', endDrag);
   document.addEventListener('touchmove', moveDrag, { passive: false });
   document.addEventListener('touchend', endDrag);
 }
