@@ -93,7 +93,6 @@
               </button>
               <div class="dropzone-hint">
                 <span>或拖拽图片至此</span>
-                <span class="dropzone-hint-secondary">支持 PNG / JPG / WebP，单张 ≤ 12MB</span>
               </div>
             </div>
           </label>
@@ -150,7 +149,6 @@
       <section class="preview-section" id="previewSection" hidden>
         <div class="preview-header">
           <h2>对比预览</h2>
-          <p>原图与抠图效果实时对比，支持放大查看细节。</p>
         </div>
         <div class="preview-grid">
           <div class="preview-card">
@@ -164,15 +162,20 @@
           <div class="preview-card">
             <div class="preview-title">
               <span class="dot success"></span>
-              <strong>去背景结果</strong>
+              <strong>生成图片</strong>
             </div>
-            <img src="" alt="去背景预览" id="processedPreview" />
-            <div class="download-row">
-              <button class="primary" id="downloadProcessed">下载PNG</button>
-              <button class="secondary ghost" id="downloadProcessedJpg">
-                下载JPG
-              </button>
+            <div class="preview-image-wrapper">
+              <img src="" alt="去背景预览" id="processedPreview" />
+              <div class="preview-state-overlay" id="previewStateOverlay">
+                <div class="preview-state-content">
+                  <p class="preview-state-text" id="previewStateText">请点击"开始去背景"</p>
+                  <div class="loading-spinner" id="loadingSpinner" hidden>
+                    <div class="spinner"></div>
+                  </div>
+                </div>
+              </div>
             </div>
+            <button class="primary full" id="downloadProcessed" hidden>下载图片</button>
           </div>
         </div>
       </section>

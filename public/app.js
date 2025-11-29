@@ -8,6 +8,9 @@ const processedPreview = document.getElementById('processedPreview');
 const downloadOriginalBtn = document.getElementById('downloadOriginal');
 const downloadProcessedBtn = document.getElementById('downloadProcessed');
 const downloadProcessedJpgBtn = document.getElementById('downloadProcessedJpg');
+const previewStateOverlay = document.getElementById('previewStateOverlay');
+const previewStateText = document.getElementById('previewStateText');
+const loadingSpinner = document.getElementById('loadingSpinner');
 const uploadStep = document.getElementById('uploadStep');
 const processingStep = document.getElementById('processingStep');
 const completeStep = document.getElementById('completeStep');
@@ -98,6 +101,10 @@ viewResultStepBtn?.addEventListener('click', () => {
 
 // 初始状态：等待上传
 setWorkflowState('idle');
+// 初始化预览状态（如果预览区域已显示）
+if (previewSection && !previewSection.hidden) {
+  updatePreviewState('waiting');
+}
 
 // ===== 顶部对比拖动交互 =====
 let isDraggingCompare = false;
@@ -160,6 +167,7 @@ function handleFile(file) {
     previewSection.hidden = false;
     removeBgBtn.disabled = false;
     setWorkflowState('ready');
+    updatePreviewState('waiting');
 
     if (viewOriginalStepBtn) {
       viewOriginalStepBtn.hidden = false;
@@ -174,6 +182,7 @@ function handleFile(file) {
 async function processRemoveBg() {
   setWorkflowState('processing');
   toggleButtonLoading(true);
+  updatePreviewState('loading');
 
   try {
     const response = await fetch('/api/remove-bg', {
@@ -195,6 +204,7 @@ async function processRemoveBg() {
     processedPreview.src = processedDataUrl;
     previewSection.hidden = false;
     setWorkflowState('done');
+    updatePreviewState('completed');
     if (viewResultStepBtn) {
       viewResultStepBtn.hidden = false;
     }
@@ -202,6 +212,7 @@ async function processRemoveBg() {
   } catch (error) {
     console.error(error);
     setWorkflowState('error');
+    updatePreviewState('waiting');
     showToast(error.message || '处理失败，请稍后重试');
   } finally {
     toggleButtonLoading(false);
@@ -279,6 +290,34 @@ function buildFileName(defaultName) {
 function pathExt(name) {
   const match = name.match(/\.[^.]+$/);
   return match ? match[0] : '';
+}
+
+function updatePreviewState(state) {
+  if (!previewStateOverlay || !previewStateText || !loadingSpinner) return;
+
+  switch (state) {
+    case 'waiting':
+      previewStateOverlay.hidden = false;
+      previewStateText.textContent = '请点击"开始去背景"';
+      loadingSpinner.hidden = true;
+      if (downloadProcessedBtn) downloadProcessedBtn.hidden = true;
+      break;
+    case 'loading':
+      previewStateOverlay.hidden = false;
+      previewStateText.textContent = 'AI生成中';
+      loadingSpinner.hidden = false;
+      if (downloadProcessedBtn) downloadProcessedBtn.hidden = true;
+      break;
+    case 'completed':
+      previewStateOverlay.hidden = true;
+      if (downloadProcessedBtn) downloadProcessedBtn.hidden = false;
+      break;
+    default:
+      previewStateOverlay.hidden = false;
+      previewStateText.textContent = '请点击"开始去背景"';
+      loadingSpinner.hidden = true;
+      if (downloadProcessedBtn) downloadProcessedBtn.hidden = true;
+  }
 }
 
 function showToast(message) {
