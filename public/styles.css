@@ -231,8 +231,8 @@ footer {
 .dropzone {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 28px;
+  gap: 0;
+  padding: 40px 28px;
   border: 1px dashed rgba(255, 255, 255, 0.3);
   border-radius: 22px;
   background: var(--panel-strong);
@@ -245,28 +245,43 @@ footer {
   background: rgba(80, 70, 255, 0.2);
 }
 
-.dropzone-visual {
+.dropzone-main {
   display: flex;
-  gap: 18px;
+  flex-direction: column;
   align-items: center;
+  gap: 16px;
 }
 
-.dropzone-circle {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
-  display: grid;
-  place-items: center;
-  font-size: 28px;
+.dropzone-btn {
+  padding: 16px 48px;
+  font-size: 18px;
+  font-weight: 700;
+  min-width: 200px;
+  box-shadow: 0 12px 40px rgba(106, 91, 255, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.dropzone-footer {
+.dropzone-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 50px rgba(106, 91, 255, 0.6);
+}
+
+.dropzone-btn:active {
+  transform: translateY(0);
+}
+
+.dropzone-hint {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  color: var(--text-muted);
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(246, 247, 251, 0.5);
+}
+
+.dropzone-hint-secondary {
+  font-size: 11px;
+  color: rgba(246, 247, 251, 0.35);
 }
 
 .workflow {
@@ -536,10 +551,22 @@ footer {
     padding: 24px;
   }
 
-  .dropzone-footer {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
+  .dropzone {
+    padding: 32px 20px;
+  }
+
+  .dropzone-btn {
+    min-width: 100%;
+    padding: 14px 32px;
+    font-size: 16px;
+  }
+
+  .dropzone-hint {
+    font-size: 12px;
+  }
+
+  .dropzone-hint-secondary {
+    font-size: 10px;
   }
 
   .preview-header {

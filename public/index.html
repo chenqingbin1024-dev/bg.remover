@@ -86,20 +86,14 @@
 
           <label class="dropzone" id="dropzone">
             <input type="file" accept="image/*" id="fileInput" hidden />
-            <div class="dropzone-visual">
-              <div class="dropzone-circle">
-                <span class="icon-cloud">☁️</span>
-              </div>
-              <div>
-                <strong>点击或拖拽图片至此</strong>
-                <p>系统将自动完成上传并开始抠图</p>
-              </div>
-            </div>
-            <div class="dropzone-footer">
-              <span>支持批量排队处理</span>
-              <button type="button" class="primary ghost" id="selectFileBtn">
+            <div class="dropzone-main">
+              <button type="button" class="primary dropzone-btn" id="selectFileBtn">
                 选择文件
               </button>
+              <div class="dropzone-hint">
+                <span>或拖拽图片至此</span>
+                <span class="dropzone-hint-secondary">支持 PNG / JPG / WebP，单张 ≤ 12MB</span>
+              </div>
             </div>
           </label>
 
