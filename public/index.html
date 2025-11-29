@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>AI 智能图片去背景 | 极速抠图</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo">bg.remover</div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-text">
+          <span class="pill">AI 抠图 · 无需PS · 极速完成</span>
+          <h1>
+            告别繁琐操作<br />
+            AI一键智能抠图
+          </h1>
+          <p>
+            利用 remove.bg 官方 API，自动识别人物、商品、LOGO等主体，
+            一键替换纯色背景或导出透明图，帮助设计师与电商团队更高效地制作素材。
+          </p>
+          <div class="hero-metrics">
+            <div>
+              <strong>3s</strong>
+              <span>平均处理耗时</span>
+            </div>
+            <div>
+              <strong>4K</strong>
+              <span>可输出超清分辨率</span>
+            </div>
+            <div>
+              <strong>98%</strong>
+              <span>主体精准识别率</span>
+            </div>
+          </div>
+
+          <div class="hero-compare" id="heroCompare">
+            <div class="hero-compare-inner">
+              <img
+                id="heroBefore"
+                src="/pic_origin.jpg"
+                class="hero-compare-img hero-compare-img--before"
+                alt="去背景前"
+              />
+              <img
+                id="heroAfter"
+                src="/pic_process.jpg"
+                class="hero-compare-img hero-compare-img--after"
+                alt="去背景后"
+              />
+              <button
+                type="button"
+                class="hero-compare-handle"
+                id="heroHandle"
+                aria-label="拖动查看前后对比"
+              >
+                <span class="hero-compare-icon">⇆</span>
+              </button>
+            </div>
+            <p class="hero-compare-tip" id="heroCompareTip">
+              上传并完成抠图后，可在这里拖动查看前后对比效果。
+            </p>
+          </div>
+        </div>
+
+        <div class="upload-panel">
+          <div class="panel-header">
+            <div>
+              <h3>上传图片去背景</h3>
+              <p>PNG / JPG / WebP，单张 ≤ 12MB</p>
+            </div>
+          </div>
+
+          <label class="dropzone" id="dropzone">
+            <input type="file" accept="image/*" id="fileInput" hidden />
+            <div class="dropzone-visual">
+              <div class="dropzone-circle">
+                <span class="icon-cloud">☁️</span>
+              </div>
+              <div>
+                <strong>点击或拖拽图片至此</strong>
+                <p>系统将自动完成上传并开始抠图</p>
+              </div>
+            </div>
+            <div class="dropzone-footer">
+              <span>支持批量排队处理</span>
+              <button type="button" class="primary ghost" id="selectFileBtn">
+                选择文件
+              </button>
+            </div>
+          </label>
+
+          <div class="workflow" id="workflow">
+            <div class="step active" id="uploadStep">
+              <div class="dot"></div>
+              <div>
+                <strong>1. 上传图片</strong>
+                <p>智能识别主体信息</p>
+                <button
+                  type="button"
+                  class="link-btn"
+                  id="viewOriginalStep"
+                  hidden
+                >
+                  查看上传图片
+                </button>
+              </div>
+            </div>
+            <div class="step" id="processingStep">
+              <div class="dot"></div>
+              <div>
+                <strong>2. AI 去背景</strong>
+                <p>调用 remove.bg API 处理</p>
+              </div>
+            </div>
+            <div class="step" id="completeStep">
+              <div class="dot"></div>
+              <div>
+                <strong>3. 下载成品</strong>
+                <p>导出透明 PNG / JPG</p>
+                <button
+                  type="button"
+                  class="link-btn"
+                  id="viewResultStep"
+                  hidden
+                >
+                  查看处理结果
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button class="primary full" id="removeBgBtn" disabled>
+            开始去背景
+          </button>
+          <p class="hint">
+            处理过程中请勿关闭页面，完成后可直接下载高清图。
+          </p>
+        </div>
+      </section>
+
+      <section class="preview-section" id="previewSection" hidden>
+        <div class="preview-header">
+          <h2>对比预览</h2>
+          <p>原图与抠图效果实时对比，支持放大查看细节。</p>
+        </div>
+        <div class="preview-grid">
+          <div class="preview-card">
+            <div class="preview-title">
+              <span class="dot"></span>
+              <strong>原图</strong>
+            </div>
+            <img src="" alt="原图预览" id="originalPreview" />
+            <button class="secondary" id="downloadOriginal">下载原图</button>
+          </div>
+          <div class="preview-card">
+            <div class="preview-title">
+              <span class="dot success"></span>
+              <strong>去背景结果</strong>
+            </div>
+            <img src="" alt="去背景预览" id="processedPreview" />
+            <div class="download-row">
+              <button class="primary" id="downloadProcessed">下载PNG</button>
+              <button class="secondary ghost" id="downloadProcessedJpg">
+                下载JPG
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section class="faq" id="faq">
+      <h3>常见问题</h3>
+      <div class="faq-grid">
+        <article>
+          <h4>数据是否安全？</h4>
+          <p>
+            所有图片通过 HTTPS 加密传输，仅用于 remove.bg 实时处理，不会被存储。
+          </p>
+        </article>
+        <article>
+          <h4>如何获取 API Key？</h4>
+          <p>
+            至 remove.bg 控制台申请开发者 Key，并在运行服务前设置
+            <code>REMOVE_BG_API_KEY</code> 环境变量。
+          </p>
+        </article>
+        <article>
+          <h4>是否支持批处理？</h4>
+          <p>
+            当前版本支持单张排队，后续可扩展为批量上传和队列处理能力。
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <span>© 2025 bg.remover · Inspired by Kaipai</span>
+      <div class="socials">
+        <a href="#">使用文档</a>
+        <a href="#">API 说明</a>
+        <a href="#">联系我们</a>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" hidden>
+      <span id="toastMessage"></span>
+    </div>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
+
