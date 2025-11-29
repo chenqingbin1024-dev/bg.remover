@@ -93,11 +93,15 @@ downloadProcessedJpgBtn.addEventListener('click', async () => {
 });
 
 if (deleteOriginalBtn) {
-  deleteOriginalBtn.addEventListener('click', (event) => {
+  deleteOriginalBtn.addEventListener('click', function(event) {
     event.preventDefault();
     event.stopPropagation();
     console.log('删除原图按钮被点击');
-    resetToInitialState();
+    try {
+      resetToInitialState();
+    } catch (error) {
+      console.error('删除原图时出错:', error);
+    }
   });
 }
 
@@ -130,6 +134,7 @@ function updateCompareSplit(clientX) {
 
 if (heroCompareInner && heroHandle) {
   const startDrag = event => {
+    event.preventDefault();
     isDraggingCompare = true;
     const clientX = event.touches ? event.touches[0].clientX : event.clientX;
     updateCompareSplit(clientX);
@@ -137,23 +142,36 @@ if (heroCompareInner && heroHandle) {
 
   const moveDrag = event => {
     if (!isDraggingCompare) return;
+    event.preventDefault();
     const clientX = event.touches ? event.touches[0].clientX : event.clientX;
     updateCompareSplit(clientX);
   };
 
-  const endDrag = () => {
-    isDraggingCompare = false;
+  const endDrag = event => {
+    if (isDraggingCompare) {
+      event?.preventDefault();
+      isDraggingCompare = false;
+    }
   };
 
   heroHandle.addEventListener('mousedown', startDrag);
-  heroCompare.addEventListener('mousedown', startDrag);
-  window.addEventListener('mousemove', moveDrag);
-  window.addEventListener('mouseup', endDrag);
+  heroCompare.addEventListener('mousedown', (event) => {
+    // 如果点击的不是按钮，才开始拖动
+    if (event.target !== heroHandle && !heroHandle.contains(event.target)) {
+      startDrag(event);
+    }
+  });
+  document.addEventListener('mousemove', moveDrag);
+  document.addEventListener('mouseup', endDrag);
 
-  heroHandle.addEventListener('touchstart', startDrag, { passive: true });
-  heroCompare.addEventListener('touchstart', startDrag, { passive: true });
-  window.addEventListener('touchmove', moveDrag, { passive: true });
-  window.addEventListener('touchend', endDrag);
+  heroHandle.addEventListener('touchstart', startDrag, { passive: false });
+  heroCompare.addEventListener('touchstart', (event) => {
+    if (event.target !== heroHandle && !heroHandle.contains(event.target)) {
+      startDrag(event);
+    }
+  }, { passive: false });
+  document.addEventListener('touchmove', moveDrag, { passive: false });
+  document.addEventListener('touchend', endDrag);
 }
 
 function handleFile(file) {
@@ -279,6 +297,8 @@ function scrollToPreview() {
 }
 
 function resetToInitialState() {
+  console.log('开始重置到初始状态');
+  
   // 清空数据
   selectedFile = null;
   originalDataUrl = '';
@@ -286,9 +306,11 @@ function resetToInitialState() {
 
   // 清空图片
   if (originalPreview) {
+    originalPreview.src = '';
     originalPreview.removeAttribute('src');
   }
   if (processedPreview) {
+    processedPreview.src = '';
     processedPreview.removeAttribute('src');
   }
 
@@ -322,6 +344,12 @@ function resetToInitialState() {
   if (previewStateOverlay) {
     previewStateOverlay.hidden = false;
   }
+  if (previewStateText) {
+    previewStateText.textContent = '请点击"开始去背景"';
+  }
+  if (loadingSpinner) {
+    loadingSpinner.hidden = true;
+  }
   updatePreviewState('waiting');
 
   // 重置工作流状态
@@ -330,8 +358,12 @@ function resetToInitialState() {
   // 显示提示
   showToast('已删除原图，可以重新上传');
   
-  // 滚动回顶部（可选）
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // 滚动回顶部
+  setTimeout(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 100);
+  
+  console.log('重置完成');
 }
 
 function triggerDownload(dataUrl, filename) {
