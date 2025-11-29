@@ -549,6 +549,12 @@ footer {
   gap: 12px;
 }
 
+.preview-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .faq {
   padding: 60px min(6vw, 120px) 90px;
 }

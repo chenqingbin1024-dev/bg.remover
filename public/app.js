@@ -8,6 +8,7 @@ const processedPreview = document.getElementById('processedPreview');
 const downloadOriginalBtn = document.getElementById('downloadOriginal');
 const downloadProcessedBtn = document.getElementById('downloadProcessed');
 const downloadProcessedJpgBtn = document.getElementById('downloadProcessedJpg');
+const deleteOriginalBtn = document.getElementById('deleteOriginalBtn');
 const previewStateOverlay = document.getElementById('previewStateOverlay');
 const previewStateText = document.getElementById('previewStateText');
 const loadingSpinner = document.getElementById('loadingSpinner');
@@ -91,6 +92,10 @@ downloadProcessedJpgBtn.addEventListener('click', async () => {
   triggerDownload(jpgDataUrl, buildFileName('background-removed.jpg'));
 });
 
+deleteOriginalBtn?.addEventListener('click', () => {
+  resetToInitialState();
+});
+
 viewOriginalStepBtn?.addEventListener('click', () => {
   scrollToPreview();
 });
@@ -168,12 +173,15 @@ function handleFile(file) {
     setWorkflowState('ready');
     updatePreviewState('waiting');
 
-    // 显示"开始去背景"按钮，隐藏"下载原图"按钮
+    // 显示"开始去背景"按钮和"删除原图"按钮，隐藏"下载原图"按钮
     if (removeBgBtn) {
       removeBgBtn.hidden = false;
     }
     if (downloadOriginalBtn) {
       downloadOriginalBtn.hidden = true;
+    }
+    if (deleteOriginalBtn) {
+      deleteOriginalBtn.hidden = false;
     }
 
     // 自动滚动到对比预览区域
@@ -211,12 +219,15 @@ async function processRemoveBg() {
     setWorkflowState('done');
     updatePreviewState('completed');
 
-    // 隐藏"开始去背景"按钮，显示"下载原图"按钮
+    // 隐藏"开始去背景"按钮，显示"下载原图"按钮，保持"删除原图"按钮可见
     if (removeBgBtn) {
       removeBgBtn.hidden = true;
     }
     if (downloadOriginalBtn) {
       downloadOriginalBtn.hidden = false;
+    }
+    if (deleteOriginalBtn) {
+      deleteOriginalBtn.hidden = false;
     }
 
     showToast('处理完成，可以下载啦 ✅');
@@ -231,6 +242,9 @@ async function processRemoveBg() {
     }
     if (downloadOriginalBtn) {
       downloadOriginalBtn.hidden = true;
+    }
+    if (deleteOriginalBtn) {
+      deleteOriginalBtn.hidden = false;
     }
     showToast(error.message || '处理失败，请稍后重试');
   } finally {
@@ -257,6 +271,56 @@ function setWorkflowState(state) {
 function scrollToPreview() {
   if (!previewSection) return;
   previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetToInitialState() {
+  // 清空数据
+  selectedFile = null;
+  originalDataUrl = '';
+  processedDataUrl = '';
+
+  // 清空图片
+  if (originalPreview) {
+    originalPreview.removeAttribute('src');
+  }
+  if (processedPreview) {
+    processedPreview.removeAttribute('src');
+  }
+
+  // 清空文件输入
+  if (fileInput) {
+    fileInput.value = '';
+  }
+
+  // 隐藏预览区域
+  if (previewSection) {
+    previewSection.hidden = true;
+  }
+
+  // 重置按钮状态
+  if (removeBgBtn) {
+    removeBgBtn.hidden = true;
+    removeBgBtn.textContent = '开始去背景';
+    removeBgBtn.disabled = false;
+  }
+  if (downloadOriginalBtn) {
+    downloadOriginalBtn.hidden = true;
+  }
+  if (deleteOriginalBtn) {
+    deleteOriginalBtn.hidden = true;
+  }
+  if (downloadProcessedBtn) {
+    downloadProcessedBtn.hidden = true;
+  }
+
+  // 重置预览状态
+  updatePreviewState('waiting');
+
+  // 重置工作流状态
+  setWorkflowState('idle');
+
+  // 显示提示
+  showToast('已删除原图，可以重新上传');
 }
 
 function triggerDownload(dataUrl, filename) {
