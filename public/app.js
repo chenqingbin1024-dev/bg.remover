@@ -92,9 +92,14 @@ downloadProcessedJpgBtn.addEventListener('click', async () => {
   triggerDownload(jpgDataUrl, buildFileName('background-removed.jpg'));
 });
 
-deleteOriginalBtn?.addEventListener('click', () => {
-  resetToInitialState();
-});
+if (deleteOriginalBtn) {
+  deleteOriginalBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('删除原图按钮被点击');
+    resetToInitialState();
+  });
+}
 
 viewOriginalStepBtn?.addEventListener('click', () => {
   scrollToPreview();
@@ -314,6 +319,9 @@ function resetToInitialState() {
   }
 
   // 重置预览状态
+  if (previewStateOverlay) {
+    previewStateOverlay.hidden = false;
+  }
   updatePreviewState('waiting');
 
   // 重置工作流状态
@@ -321,6 +329,9 @@ function resetToInitialState() {
 
   // 显示提示
   showToast('已删除原图，可以重新上传');
+  
+  // 滚动回顶部（可选）
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function triggerDownload(dataUrl, filename) {
