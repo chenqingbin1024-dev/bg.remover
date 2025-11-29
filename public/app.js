@@ -165,11 +165,21 @@ function handleFile(file) {
     originalPreview.src = originalDataUrl;
     processedPreview.removeAttribute('src');
     previewSection.hidden = false;
-    removeBgBtn.disabled = false;
     setWorkflowState('ready');
     updatePreviewState('waiting');
 
-    // 步骤提示已移除
+    // 显示"开始去背景"按钮，隐藏"下载原图"按钮
+    if (removeBgBtn) {
+      removeBgBtn.hidden = false;
+    }
+    if (downloadOriginalBtn) {
+      downloadOriginalBtn.hidden = true;
+    }
+
+    // 自动滚动到对比预览区域
+    setTimeout(() => {
+      scrollToPreview();
+    }, 100);
   };
   reader.readAsDataURL(file);
 }
@@ -200,12 +210,28 @@ async function processRemoveBg() {
     previewSection.hidden = false;
     setWorkflowState('done');
     updatePreviewState('completed');
-    // 步骤提示已移除
+
+    // 隐藏"开始去背景"按钮，显示"下载原图"按钮
+    if (removeBgBtn) {
+      removeBgBtn.hidden = true;
+    }
+    if (downloadOriginalBtn) {
+      downloadOriginalBtn.hidden = false;
+    }
+
     showToast('处理完成，可以下载啦 ✅');
   } catch (error) {
     console.error(error);
     setWorkflowState('error');
     updatePreviewState('waiting');
+    // 处理失败时，恢复按钮状态
+    if (removeBgBtn) {
+      removeBgBtn.hidden = false;
+      removeBgBtn.textContent = '开始去背景';
+    }
+    if (downloadOriginalBtn) {
+      downloadOriginalBtn.hidden = true;
+    }
     showToast(error.message || '处理失败，请稍后重试');
   } finally {
     toggleButtonLoading(false);
@@ -213,11 +239,13 @@ async function processRemoveBg() {
 }
 
 function toggleButtonLoading(isLoading) {
-  removeBgBtn.disabled = isLoading;
+  if (!removeBgBtn) return;
   if (isLoading) {
     removeBgBtn.textContent = 'AI 正在抠图...';
+    removeBgBtn.disabled = true;
   } else {
     removeBgBtn.textContent = '开始去背景';
+    removeBgBtn.disabled = false;
   }
 }
 
