@@ -495,7 +495,7 @@ footer {
 
 .preview-state-text {
   font-size: 16px;
-  margin: 0 0 16px;
+  margin: 0;
   color: var(--text-muted);
 }
 
@@ -503,6 +503,11 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 16px;
+}
+
+.loading-spinner[hidden] {
+  display: none;
 }
 
 .spinner {

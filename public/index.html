@@ -97,46 +97,6 @@
             </div>
           </label>
 
-          <div class="workflow" id="workflow">
-            <div class="step active" id="uploadStep">
-              <div class="dot"></div>
-              <div>
-                <strong>1. 上传图片</strong>
-                <p>智能识别主体信息</p>
-                <button
-                  type="button"
-                  class="link-btn"
-                  id="viewOriginalStep"
-                  hidden
-                >
-                  查看上传图片
-                </button>
-              </div>
-            </div>
-            <div class="step" id="processingStep">
-              <div class="dot"></div>
-              <div>
-                <strong>2. AI 去背景</strong>
-                <p>调用 remove.bg API 处理</p>
-              </div>
-            </div>
-            <div class="step" id="completeStep">
-              <div class="dot"></div>
-              <div>
-                <strong>3. 下载成品</strong>
-                <p>导出透明 PNG / JPG</p>
-                <button
-                  type="button"
-                  class="link-btn"
-                  id="viewResultStep"
-                  hidden
-                >
-                  查看处理结果
-                </button>
-              </div>
-            </div>
-          </div>
-
           <button class="primary full" id="removeBgBtn" disabled>
             开始去背景
           </button>

@@ -169,12 +169,7 @@ function handleFile(file) {
     setWorkflowState('ready');
     updatePreviewState('waiting');
 
-    if (viewOriginalStepBtn) {
-      viewOriginalStepBtn.hidden = false;
-    }
-    if (viewResultStepBtn) {
-      viewResultStepBtn.hidden = true;
-    }
+    // 步骤提示已移除
   };
   reader.readAsDataURL(file);
 }
@@ -205,9 +200,7 @@ async function processRemoveBg() {
     previewSection.hidden = false;
     setWorkflowState('done');
     updatePreviewState('completed');
-    if (viewResultStepBtn) {
-      viewResultStepBtn.hidden = false;
-    }
+    // 步骤提示已移除
     showToast('处理完成，可以下载啦 ✅');
   } catch (error) {
     console.error(error);
@@ -229,42 +222,8 @@ function toggleButtonLoading(isLoading) {
 }
 
 function setWorkflowState(state) {
-  const baseClass = 'step';
-
-  // 重置
-  uploadStep.className = baseClass;
-  processingStep.className = baseClass;
-  completeStep.className = baseClass;
-
-  switch (state) {
-    case 'idle': {
-      uploadStep.classList.add('active');
-      break;
-    }
-    case 'ready': {
-      uploadStep.classList.add('active', 'step--done');
-      break;
-    }
-    case 'processing': {
-      uploadStep.classList.add('step--done');
-      processingStep.classList.add('active', 'step--processing');
-      break;
-    }
-    case 'done': {
-      uploadStep.classList.add('step--done');
-      processingStep.classList.add('step--done');
-      completeStep.classList.add('active', 'step--done');
-      break;
-    }
-    case 'error': {
-      uploadStep.classList.add('step--done');
-      processingStep.classList.add('active', 'step--error');
-      break;
-    }
-    default: {
-      uploadStep.classList.add('active');
-    }
-  }
+  // 步骤提示已移除，此函数保留以避免报错，但不执行任何操作
+  return;
 }
 
 function scrollToPreview() {
