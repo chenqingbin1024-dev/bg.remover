@@ -1,9 +1,37 @@
 // 导入 Supabase 认证
-console.log('[app.js] 开始加载脚本...');
-import { auth } from '/supabase.js';
-console.log('[app.js] Supabase auth 模块已导入，auth:', auth);
+console.log('[app.js] 开始加载脚本...', new Date().toISOString());
 
-const dropzone = document.getElementById('dropzone');
+// 等待 DOM 加载完成
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  // DOM 已经加载完成
+  initApp();
+}
+
+async function initApp() {
+  console.log('[app.js] DOM 已加载，开始初始化应用...', document.readyState);
+  
+  // 动态导入 Supabase 模块
+  let auth;
+  try {
+    const supabaseModule = await import('/supabase.js');
+    auth = supabaseModule.auth;
+    console.log('[app.js] Supabase auth 模块已导入，auth:', auth);
+  } catch (error) {
+    console.error('[app.js] Supabase 模块加载失败:', error);
+    return;
+  }
+  
+  // 继续执行其他初始化代码...
+  await setupApp(auth);
+}
+
+async function setupApp(auth) {
+  console.log('[app.js] setupApp 开始执行，auth:', auth);
+  
+  // 获取所有 DOM 元素
+  const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
 const selectFileBtn = document.getElementById('selectFileBtn');
 const removeBgBtn = document.getElementById('removeBgBtn');
@@ -141,9 +169,9 @@ if (previewSection && !previewSection.hidden) {
   updatePreviewState('waiting');
 }
 
-// ===== 认证功能 =====
-// 初始化认证状态
-async function initAuth() {
+  // ===== 认证功能 =====
+  // 初始化认证状态
+  async function initAuth() {
   // 先显示登录按钮（如果配置缺失也能看到按钮）
   if (loginBtn) loginBtn.hidden = false;
   if (logoutBtn) logoutBtn.hidden = true;
@@ -225,16 +253,16 @@ function updateAuthUI(user) {
   }
 }
 
-// 登录按钮事件
-console.log('[app.js] 准备绑定登录按钮事件，loginBtn:', loginBtn);
-if (loginBtn) {
-  console.log('[app.js] 登录按钮已找到，绑定事件监听器');
-  loginBtn.addEventListener('click', async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    console.log('[app.js] ========== 登录按钮被点击 ==========');
-    console.log('[app.js] 事件对象:', event);
-    console.log('[app.js] auth 对象:', auth);
+  // 登录按钮事件
+  console.log('[app.js] 准备绑定登录按钮事件，loginBtn:', loginBtn);
+  if (loginBtn) {
+    console.log('[app.js] 登录按钮已找到，绑定事件监听器');
+    loginBtn.addEventListener('click', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      console.log('[app.js] ========== 登录按钮被点击 ==========');
+      console.log('[app.js] 事件对象:', event);
+      console.log('[app.js] auth 对象:', auth);
     
     // 检查 Supabase 配置
     if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
@@ -304,8 +332,21 @@ if (logoutBtn) {
   });
 }
 
-// 初始化认证
-initAuth();
+  // 初始化认证
+  initAuth();
+  
+  // 初始状态：等待上传
+  setWorkflowState('idle');
+  // 初始化预览状态（如果预览区域已显示）
+  if (previewSection && !previewSection.hidden) {
+    updatePreviewState('waiting');
+  }
+  
+  console.log('[app.js] setupApp 执行完成');
+}
+
+// 初始状态：等待上传
+setWorkflowState('idle');
 
 // ===== 顶部对比拖动交互 =====
 let isDraggingCompare = false;
