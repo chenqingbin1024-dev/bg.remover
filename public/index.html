@@ -19,6 +19,24 @@
   <body>
     <header class="site-header">
       <div class="logo">bg.remover</div>
+      <div class="auth-section">
+        <div id="userInfo" class="user-info" hidden>
+          <img id="userAvatar" class="user-avatar" src="" alt="用户头像" />
+          <span id="userName" class="user-name"></span>
+        </div>
+        <button id="loginBtn" class="btn-login" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/>
+          </svg>
+          Google 登录
+        </button>
+        <button id="logoutBtn" class="btn-logout" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14l5-5-5-5m5 5H9"/>
+          </svg>
+          登出
+        </button>
+      </div>
     </header>
 
     <main>
@@ -170,6 +188,14 @@
       <span id="toastMessage"></span>
     </div>
 
+    <!-- 注入 Supabase 配置 -->
+    <script>
+      // 从服务器端注入 Supabase 配置
+      window.SUPABASE_URL = '{{SUPABASE_URL}}';
+      window.SUPABASE_ANON_KEY = '{{SUPABASE_ANON_KEY}}';
+    </script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
+    <script type="module" src="/supabase.js"></script>
     <script src="/app.js" type="module"></script>
   </body>
 </html>

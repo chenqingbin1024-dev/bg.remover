@@ -46,13 +46,84 @@ footer {
   backdrop-filter: blur(16px);
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   padding-block: 18px;
 }
 
 .logo {
   font-weight: 700;
   letter-spacing: 1px;
+}
+
+/* 认证相关样式 */
+.auth-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-login,
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-login:hover,
+.btn-logout:hover {
+  background: var(--panel-strong);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.btn-login:active,
+.btn-logout:active {
+  transform: translateY(0);
+}
+
+.btn-login:disabled,
+.btn-logout:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-login svg,
+.btn-logout svg {
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
 }
 
 .hero {

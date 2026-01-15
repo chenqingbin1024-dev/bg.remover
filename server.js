@@ -5,6 +5,8 @@ const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const REMOVE_BG_ENDPOINT = 'https://api.remove.bg/v1.0/removebg';
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
 const MIME_TYPES = {
   '.html': 'text/html; charset=UTF-8',
   '.css': 'text/css; charset=UTF-8',
@@ -23,6 +25,12 @@ const server = http.createServer(async (req, res) => {
   try {
     if (req.method === 'POST' && req.url === '/api/remove-bg') {
       await handleRemoveBackground(req, res);
+      return;
+    }
+
+    // 处理认证回调
+    if (req.url.startsWith('/auth/callback')) {
+      await handleAuthCallback(req, res);
       return;
     }
 
@@ -75,10 +83,27 @@ async function serveStaticAsset(req, res) {
     }
 
     const ext = path.extname(finalPath);
+    let content = data;
+
+    // 如果是 HTML 文件，注入 Supabase 配置
+    if (ext === '.html') {
+      content = Buffer.from(
+        data.toString()
+          .replace('{{SUPABASE_URL}}', SUPABASE_URL)
+          .replace('{{SUPABASE_ANON_KEY}}', SUPABASE_ANON_KEY)
+      );
+    }
+
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
     res.writeHead(200, { 'Content-Type': contentType });
-    res.end(data);
+    res.end(content);
   });
+}
+
+async function handleAuthCallback(req, res) {
+  // 重定向回首页，Supabase 会自动处理认证状态
+  res.writeHead(302, { 'Location': '/' });
+  res.end();
 }
 
 function sanitizePath(urlPath = '/') {

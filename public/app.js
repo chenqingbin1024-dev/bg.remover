@@ -1,3 +1,9 @@
+// 导入 Supabase 认证
+import { auth } from '/supabase.js';
+
+// 导入 Supabase 认证
+import { auth } from '/supabase.js';
+
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
 const selectFileBtn = document.getElementById('selectFileBtn');
@@ -19,6 +25,13 @@ const viewOriginalStepBtn = document.getElementById('viewOriginalStep');
 const viewResultStepBtn = document.getElementById('viewResultStep');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toastMessage');
+
+// 认证相关元素
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const userInfo = document.getElementById('userInfo');
+const userAvatar = document.getElementById('userAvatar');
+const userName = document.getElementById('userName');
 
 // 顶部拖动对比组件
 const heroCompare = document.getElementById('heroCompare');
@@ -119,6 +132,110 @@ setWorkflowState('idle');
 if (previewSection && !previewSection.hidden) {
   updatePreviewState('waiting');
 }
+
+// ===== 认证功能 =====
+// 初始化认证状态
+async function initAuth() {
+  try {
+    // 检查当前会话
+    const { data: { session } } = await auth.getSession();
+    if (session) {
+      updateAuthUI(session.user);
+    } else {
+      updateAuthUI(null);
+    }
+
+    // 监听认证状态变化
+    auth.onAuthStateChange((event, session) => {
+      console.log('认证状态变化:', event, session?.user?.email);
+      if (session?.user) {
+        updateAuthUI(session.user);
+      } else {
+        updateAuthUI(null);
+      }
+    });
+  } catch (error) {
+    console.error('初始化认证失败:', error);
+    updateAuthUI(null);
+  }
+}
+
+// 更新认证 UI
+function updateAuthUI(user) {
+  if (user) {
+    // 用户已登录
+    if (loginBtn) loginBtn.hidden = true;
+    if (logoutBtn) logoutBtn.hidden = false;
+    if (userInfo) userInfo.hidden = false;
+    
+    // 显示用户信息
+    if (userAvatar) {
+      userAvatar.src = user.user_metadata?.avatar_url || 
+                      user.user_metadata?.picture || 
+                      'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+      userAvatar.alt = user.user_metadata?.full_name || user.email || '用户头像';
+    }
+    if (userName) {
+      userName.textContent = user.user_metadata?.full_name || 
+                            user.user_metadata?.name || 
+                            user.email?.split('@')[0] || 
+                            '用户';
+    }
+  } else {
+    // 用户未登录
+    if (loginBtn) loginBtn.hidden = false;
+    if (logoutBtn) logoutBtn.hidden = true;
+    if (userInfo) userInfo.hidden = true;
+  }
+}
+
+// 登录按钮事件
+if (loginBtn) {
+  loginBtn.addEventListener('click', async () => {
+    try {
+      loginBtn.disabled = true;
+      const originalHTML = loginBtn.innerHTML;
+      loginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/></svg> 登录中...';
+      const { data, error } = await auth.signInWithGoogle();
+      if (error) {
+        console.error('登录失败:', error);
+        showToast('登录失败，请重试');
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = originalHTML;
+      }
+    } catch (error) {
+      console.error('登录错误:', error);
+      showToast('登录出错，请重试');
+      loginBtn.disabled = false;
+      loginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/></svg> Google 登录';
+    }
+  });
+}
+
+// 登出按钮事件
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      logoutBtn.disabled = true;
+      const { error } = await auth.signOut();
+      if (error) {
+        console.error('登出失败:', error);
+        showToast('登出失败，请重试');
+        logoutBtn.disabled = false;
+      } else {
+        showToast('已成功登出');
+        updateAuthUI(null);
+      }
+    } catch (error) {
+      console.error('登出错误:', error);
+      showToast('登出出错，请重试');
+      logoutBtn.disabled = false;
+    }
+  });
+}
+
+// 初始化认证
+initAuth();
 
 // ===== 顶部对比拖动交互 =====
 let isDraggingCompare = false;
