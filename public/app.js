@@ -136,9 +136,32 @@ if (previewSection && !previewSection.hidden) {
 // ===== 认证功能 =====
 // 初始化认证状态
 async function initAuth() {
+  // 先显示登录按钮（如果配置缺失也能看到按钮）
+  if (loginBtn) loginBtn.hidden = false;
+  if (logoutBtn) logoutBtn.hidden = true;
+  if (userInfo) userInfo.hidden = true;
+  
   try {
+    // 检查 Supabase 配置
+    if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+      console.warn('Supabase 配置缺失，登录功能不可用');
+      if (loginBtn) {
+        loginBtn.disabled = true;
+        loginBtn.title = 'Supabase 配置缺失，请检查环境变量';
+      }
+      return;
+    }
+    
+    if (loginBtn) loginBtn.disabled = false;
+    
     // 检查当前会话
-    const { data: { session } } = await auth.getSession();
+    const { data: { session }, error: sessionError } = await auth.getSession();
+    if (sessionError) {
+      console.error('获取会话失败:', sessionError);
+      updateAuthUI(null);
+      return;
+    }
+    
     if (session) {
       updateAuthUI(session.user);
     } else {
@@ -157,6 +180,11 @@ async function initAuth() {
   } catch (error) {
     console.error('初始化认证失败:', error);
     updateAuthUI(null);
+    // 确保登录按钮可见
+    if (loginBtn) {
+      loginBtn.hidden = false;
+      loginBtn.disabled = false;
+    }
   }
 }
 
