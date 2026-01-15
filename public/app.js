@@ -1,8 +1,7 @@
 // 导入 Supabase 认证
+console.log('[app.js] 开始加载脚本...');
 import { auth } from '/supabase.js';
-
-// 导入 Supabase 认证
-import { auth } from '/supabase.js';
+console.log('[app.js] Supabase auth 模块已导入，auth:', auth);
 
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
@@ -32,6 +31,15 @@ const logoutBtn = document.getElementById('logoutBtn');
 const userInfo = document.getElementById('userInfo');
 const userAvatar = document.getElementById('userAvatar');
 const userName = document.getElementById('userName');
+
+console.log('[app.js] DOM 元素检查:', {
+  loginBtn: loginBtn ? `找到 (${loginBtn.tagName})` : '未找到',
+  logoutBtn: logoutBtn ? `找到 (${logoutBtn.tagName})` : '未找到',
+  userInfo: userInfo ? '找到' : '未找到',
+  loginBtnHidden: loginBtn?.hidden,
+  loginBtnDisabled: loginBtn?.disabled,
+  loginBtnOnclick: loginBtn?.onclick
+});
 
 // 顶部拖动对比组件
 const heroCompare = document.getElementById('heroCompare');
@@ -218,12 +226,15 @@ function updateAuthUI(user) {
 }
 
 // 登录按钮事件
+console.log('[app.js] 准备绑定登录按钮事件，loginBtn:', loginBtn);
 if (loginBtn) {
-  console.log('登录按钮已找到，绑定事件监听器');
+  console.log('[app.js] 登录按钮已找到，绑定事件监听器');
   loginBtn.addEventListener('click', async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    console.log('登录按钮被点击');
+    console.log('[app.js] ========== 登录按钮被点击 ==========');
+    console.log('[app.js] 事件对象:', event);
+    console.log('[app.js] auth 对象:', auth);
     
     // 检查 Supabase 配置
     if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
@@ -240,8 +251,16 @@ if (loginBtn) {
       const originalHTML = loginBtn.innerHTML;
       loginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/></svg> 登录中...';
       
-      console.log('开始调用 signInWithGoogle');
+      console.log('[app.js] 开始调用 signInWithGoogle');
+      console.log('[app.js] auth 对象类型:', typeof auth);
+      console.log('[app.js] auth.signInWithGoogle 类型:', typeof auth?.signInWithGoogle);
+      
+      if (!auth || !auth.signInWithGoogle) {
+        throw new Error('auth 对象或 signInWithGoogle 方法不存在');
+      }
+      
       const { data, error } = await auth.signInWithGoogle();
+      console.log('[app.js] signInWithGoogle 返回结果:', { data, error });
       
       if (error) {
         console.error('登录失败:', error);
