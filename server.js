@@ -34,24 +34,6 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // 测试页面
-    if (req.url === '/test-login.html') {
-      const testPath = path.join(publicDir, 'test-login.html');
-      fs.readFile(testPath, (err, data) => {
-        if (err) {
-          res.writeHead(404);
-          res.end('Not Found');
-          return;
-        }
-        const content = data.toString()
-          .replace('{{SUPABASE_URL}}', SUPABASE_URL || '')
-          .replace('{{SUPABASE_ANON_KEY}}', SUPABASE_ANON_KEY || '');
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
-        res.end(content);
-      });
-      return;
-    }
-
     await serveStaticAsset(req, res);
   } catch (error) {
     console.error('[server] unexpected error', error);
@@ -62,6 +44,21 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
+  
+  // 检查 Supabase 配置
+  console.log('\n=== 配置检查 ===');
+  console.log('REMOVE_BG_API_KEY:', process.env.REMOVE_BG_API_KEY ? '✅ 已设置' : '❌ 未设置');
+  console.log('SUPABASE_URL:', SUPABASE_URL ? `✅ 已设置 (${SUPABASE_URL.substring(0, 30)}...)` : '❌ 未设置');
+  console.log('SUPABASE_ANON_KEY:', SUPABASE_ANON_KEY ? '✅ 已设置' : '❌ 未设置');
+  
+  // 检查常见的拼写错误
+  if (process.env.UPABASE_ANON_KEY) {
+    console.warn('⚠️  警告: 检测到拼写错误 "UPABASE_ANON_KEY"，应该是 "SUPABASE_ANON_KEY"（少了一个 S）');
+  }
+  if (process.env.SUPABASE_URL && !SUPABASE_URL.startsWith('http')) {
+    console.warn('⚠️  警告: SUPABASE_URL 格式可能不正确，应该以 https:// 开头');
+  }
+  console.log('================\n');
 });
 
 async function serveStaticAsset(req, res) {
