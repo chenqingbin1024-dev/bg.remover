@@ -34,6 +34,24 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 测试页面
+    if (req.url === '/test-login.html') {
+      const testPath = path.join(publicDir, 'test-login.html');
+      fs.readFile(testPath, (err, data) => {
+        if (err) {
+          res.writeHead(404);
+          res.end('Not Found');
+          return;
+        }
+        const content = data.toString()
+          .replace('{{SUPABASE_URL}}', SUPABASE_URL || '')
+          .replace('{{SUPABASE_ANON_KEY}}', SUPABASE_ANON_KEY || '');
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
+        res.end(content);
+      });
+      return;
+    }
+
     await serveStaticAsset(req, res);
   } catch (error) {
     console.error('[server] unexpected error', error);
