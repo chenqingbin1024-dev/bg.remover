@@ -87,11 +87,19 @@ async function serveStaticAsset(req, res) {
 
     // 如果是 HTML 文件，注入 Supabase 配置
     if (ext === '.html') {
-      content = Buffer.from(
-        data.toString()
-          .replace('{{SUPABASE_URL}}', SUPABASE_URL)
-          .replace('{{SUPABASE_ANON_KEY}}', SUPABASE_ANON_KEY)
-      );
+      const htmlContent = data.toString();
+      const injectedContent = htmlContent
+        .replace('{{SUPABASE_URL}}', SUPABASE_URL || '')
+        .replace('{{SUPABASE_ANON_KEY}}', SUPABASE_ANON_KEY || '');
+      
+      // 如果配置缺失，记录警告
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.warn('[警告] Supabase 配置缺失，请在 .env 文件中设置 SUPABASE_URL 和 SUPABASE_ANON_KEY');
+      } else {
+        console.log('[配置] Supabase 配置已注入');
+      }
+      
+      content = Buffer.from(injectedContent);
     }
 
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';

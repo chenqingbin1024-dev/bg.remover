@@ -191,25 +191,48 @@ function updateAuthUI(user) {
 
 // 登录按钮事件
 if (loginBtn) {
-  loginBtn.addEventListener('click', async () => {
+  console.log('登录按钮已找到，绑定事件监听器');
+  loginBtn.addEventListener('click', async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('登录按钮被点击');
+    
+    // 检查 Supabase 配置
+    if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+      console.error('Supabase 配置缺失:', {
+        url: window.SUPABASE_URL,
+        key: window.SUPABASE_ANON_KEY ? '已设置' : '未设置'
+      });
+      showToast('Supabase 配置缺失，请检查环境变量');
+      return;
+    }
+    
     try {
       loginBtn.disabled = true;
       const originalHTML = loginBtn.innerHTML;
       loginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/></svg> 登录中...';
+      
+      console.log('开始调用 signInWithGoogle');
       const { data, error } = await auth.signInWithGoogle();
+      
       if (error) {
         console.error('登录失败:', error);
-        showToast('登录失败，请重试');
+        showToast(`登录失败: ${error.message || '请重试'}`);
         loginBtn.disabled = false;
         loginBtn.innerHTML = originalHTML;
+      } else {
+        console.log('登录成功，重定向中...', data);
+        // signInWithOAuth 会触发重定向，所以这里不需要额外处理
       }
     } catch (error) {
       console.error('登录错误:', error);
-      showToast('登录出错，请重试');
+      showToast(`登录出错: ${error.message || '请重试'}`);
       loginBtn.disabled = false;
       loginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/></svg> Google 登录';
     }
   });
+} else {
+  console.warn('登录按钮未找到');
 }
 
 // 登出按钮事件

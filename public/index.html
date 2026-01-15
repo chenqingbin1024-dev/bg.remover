@@ -188,11 +188,15 @@
       <span id="toastMessage"></span>
     </div>
 
-    <!-- 注入 Supabase 配置 -->
+    <!-- 注入 Supabase 配置（必须在其他脚本之前） -->
     <script>
       // 从服务器端注入 Supabase 配置
       window.SUPABASE_URL = '{{SUPABASE_URL}}';
       window.SUPABASE_ANON_KEY = '{{SUPABASE_ANON_KEY}}';
+      console.log('Supabase 配置已注入:', {
+        url: window.SUPABASE_URL ? '已设置' : '未设置',
+        key: window.SUPABASE_ANON_KEY ? '已设置' : '未设置'
+      });
     </script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"></script>
     <script type="module" src="/supabase.js"></script>
