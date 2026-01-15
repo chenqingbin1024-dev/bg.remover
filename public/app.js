@@ -257,58 +257,76 @@ function updateAuthUI(user) {
   console.log('[app.js] 准备绑定登录按钮事件，loginBtn:', loginBtn);
   if (loginBtn) {
     console.log('[app.js] 登录按钮已找到，绑定事件监听器');
-    loginBtn.addEventListener('click', async (event) => {
+    
+    // 移除所有现有的事件监听器（避免重复绑定）
+    const newLoginBtn = loginBtn.cloneNode(true);
+    loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
+    const cleanLoginBtn = document.getElementById('loginBtn');
+    
+    cleanLoginBtn.addEventListener('click', async (event) => {
       event.preventDefault();
       event.stopPropagation();
       console.log('[app.js] ========== 登录按钮被点击 ==========');
-      console.log('[app.js] 事件对象:', event);
       console.log('[app.js] auth 对象:', auth);
+      console.log('[app.js] window.SUPABASE_URL:', window.SUPABASE_URL ? '已设置' : '未设置');
+      console.log('[app.js] window.SUPABASE_ANON_KEY:', window.SUPABASE_ANON_KEY ? '已设置' : '未设置');
     
-    // 检查 Supabase 配置
-    if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
-      console.error('Supabase 配置缺失:', {
-        url: window.SUPABASE_URL,
-        key: window.SUPABASE_ANON_KEY ? '已设置' : '未设置'
-      });
-      showToast('Supabase 配置缺失，请检查环境变量');
-      return;
-    }
-    
-    try {
-      loginBtn.disabled = true;
-      const originalHTML = loginBtn.innerHTML;
-      loginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/></svg> 登录中...';
+      // 检查 Supabase 配置
+      if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+        console.error('[app.js] Supabase 配置缺失:', {
+          url: window.SUPABASE_URL,
+          key: window.SUPABASE_ANON_KEY ? '已设置' : '未设置'
+        });
+        showToast('Supabase 配置缺失，请检查环境变量');
+        return;
+      }
       
-      console.log('[app.js] 开始调用 signInWithGoogle');
-      console.log('[app.js] auth 对象类型:', typeof auth);
-      console.log('[app.js] auth.signInWithGoogle 类型:', typeof auth?.signInWithGoogle);
-      
+      // 检查 auth 对象
       if (!auth || !auth.signInWithGoogle) {
-        throw new Error('auth 对象或 signInWithGoogle 方法不存在');
+        console.error('[app.js] auth 对象无效:', auth);
+        showToast('认证模块未正确加载，请刷新页面重试');
+        return;
       }
-      
-      const { data, error } = await auth.signInWithGoogle();
-      console.log('[app.js] signInWithGoogle 返回结果:', { data, error });
-      
-      if (error) {
-        console.error('登录失败:', error);
-        showToast(`登录失败: ${error.message || '请重试'}`);
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = originalHTML;
-      } else {
-        console.log('登录成功，重定向中...', data);
-        // signInWithOAuth 会触发重定向，所以这里不需要额外处理
+    
+      try {
+        cleanLoginBtn.disabled = true;
+        const originalHTML = cleanLoginBtn.innerHTML;
+        cleanLoginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/></svg> 登录中...';
+        
+        console.log('[app.js] 开始调用 signInWithGoogle');
+        const { data, error } = await auth.signInWithGoogle();
+        console.log('[app.js] signInWithGoogle 返回结果:', { 
+          hasData: !!data, 
+          hasError: !!error,
+          dataUrl: data?.url,
+          errorMessage: error?.message 
+        });
+        
+        if (error) {
+          console.error('[app.js] 登录失败:', error);
+          showToast(`登录失败: ${error.message || '请重试'}`);
+          cleanLoginBtn.disabled = false;
+          cleanLoginBtn.innerHTML = originalHTML;
+        } else if (data?.url) {
+          console.log('[app.js] 登录成功，准备重定向到:', data.url);
+          // signInWithOAuth 返回的 data.url 就是 Google 登录页面
+          window.location.href = data.url;
+        } else {
+          console.warn('[app.js] 登录返回数据异常:', data);
+          showToast('登录响应异常，请重试');
+          cleanLoginBtn.disabled = false;
+          cleanLoginBtn.innerHTML = originalHTML;
+        }
+      } catch (error) {
+        console.error('[app.js] 登录异常:', error);
+        showToast(`登录出错: ${error.message || '请重试'}`);
+        cleanLoginBtn.disabled = false;
+        cleanLoginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/></svg> Google 登录';
       }
-    } catch (error) {
-      console.error('登录错误:', error);
-      showToast(`登录出错: ${error.message || '请重试'}`);
-      loginBtn.disabled = false;
-      loginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-7-4a5 5 0 1 1 10 0A5 5 0 0 1 5 14zm0 0c0 2.5 2 4.5 4.5 4.5S14 16.5 14 14"/></svg> Google 登录';
-    }
-  });
-} else {
-  console.warn('登录按钮未找到');
-}
+    });
+  } else {
+    console.error('[app.js] 登录按钮未找到！');
+  }
 
 // 登出按钮事件
 if (logoutBtn) {
